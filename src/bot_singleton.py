@@ -9,3 +9,5 @@ class BotSingleton(object):
         if not isinstance(class_.bot, class_):
             class_.bot = object.__new__(class_, *args, **kwargs)
         return class_.bot
+    
+    

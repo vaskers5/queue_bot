@@ -1,8 +1,14 @@
 from datetime import datetime, timedelta
 
+from src.bot_singleton import BotSingleton
 
 
 weeks_days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
+
+
+def check_current_user_state(chat_id: str, state: str) -> bool:
+    return BotSingleton.manager.get_current_user_state(chat_id)["state"] == state
+
 
 def generate_calendar_for_two_weeks()-> tuple[list[str], list[datetime]]:
     current_date = datetime.now()

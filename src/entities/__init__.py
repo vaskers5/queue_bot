@@ -1,4 +1,4 @@
 from .place import Place
-from .time_slot import TimeSlot
+from .slot import Slot
 from .trainer import Trainer
 from .user import User

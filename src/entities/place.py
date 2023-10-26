@@ -5,5 +5,5 @@ class Place:
         self.place_id = place_id
         self.name = name    
 
-    def __repr__(self) -> str:
-        return f'Place(id={self.place_id}, name={self.name}'
+    def __str__(self) -> str:
+        return f"{self.place_id}, name={self.name}"
