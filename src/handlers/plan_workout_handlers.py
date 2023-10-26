@@ -21,7 +21,8 @@ def handle_workout_place(message):
     workout_date = parse_date(message.text)
     if message.text in last_state["state_info"]:
         workout_date = last_state["state_info"][message.text]
-    elif workout_date is None or workout_date < datetime.now():
+    elif workout_date is None or workout_date.date() < datetime.now().date():
+        workout_date  = None
         BotSingleton.bot.send_message(user_id, "Введите дату в корректном формате")
     if workout_date:
         workout_date = str(workout_date)
@@ -63,7 +64,7 @@ def handle_entered_time(message):
     else:
         start_time, end_time = message.text.split("-")
         last_state = BotSingleton.manager.get_current_user_state(user_id)
-        date = datetime.strptime(last_state["state_info"]["date"], '%Y-%m-%d %H:%M:%S.%f')
+        date = datetime.strptime(last_state["state_info"]["date"], '%Y-%m-%d %H:%M:%S')
         workout_start_time = str(datetime.combine(date, datetime.strptime(start_time, '%H:%M').time()))
         workout_end_time = str(datetime.combine(date, datetime.strptime(end_time, '%H:%M').time()))
         BotSingleton.manager.change_current_user_state(user_id, "entered_time", 

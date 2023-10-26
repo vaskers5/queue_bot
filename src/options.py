@@ -25,7 +25,7 @@ def generate_calendar_for_two_weeks()-> tuple[list[str], list[datetime]]:
     return str_dates, dates
 
 
-def parse_date(date_string, date_format="%d-%m-%Y"):
+def parse_date(date_string, date_format="%d.%m.%Y"):
     try:
         return datetime.strptime(date_string, date_format)
     except ValueError:
