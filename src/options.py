@@ -1,14 +1,18 @@
 from datetime import datetime, timedelta
 
 from src.bot_singleton import BotSingleton
-
+from src.markups import get_start_markup
 
 weeks_days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
 
 
 def check_current_user_state(chat_id: str, state: str) -> bool:
-    return BotSingleton.manager.get_current_user_state(chat_id)["state"] == state
-
+    cur_state = BotSingleton.manager.get_current_user_state(chat_id)
+    if cur_state is None:
+        BotSingleton.manager.change_current_user_state(chat_id, "start")
+        cur_state = BotSingleton.manager.get_current_user_state(chat_id)
+        BotSingleton.bot.send_message(chat_id, "Выберите опцию:", reply_markup=get_start_markup())
+    return cur_state["state"] == state
 
 def generate_calendar_for_two_weeks()-> tuple[list[str], list[datetime]]:
     current_date = datetime.now()
@@ -19,6 +23,13 @@ def generate_calendar_for_two_weeks()-> tuple[list[str], list[datetime]]:
         str_dates.append(formatted_day)
         dates.append(next_day)
     return str_dates, dates
+
+
+def parse_date(date_string, date_format="%d-%m-%Y"):
+    try:
+        return datetime.strptime(date_string, date_format)
+    except ValueError:
+        return None
 
 def validate_time(time: str) -> bool:
     "must be in format hh:mm-hh:mm"

@@ -1,6 +1,13 @@
 import telebot
 
+from telebot import apihelper
+
 from src.manager import BotManager
+
+
+# Enable middleware
+apihelper.ENABLE_MIDDLEWARE = True
+
 
 class BotSingleton(object):
     bot = telebot.TeleBot("1923472646:AAHrWfdgLlRP3FRzRn-xWx09f5WM_mfBXHQ")
