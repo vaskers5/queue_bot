@@ -1,4 +1,4 @@
-name,email,phone,address,passport_id,specialization,verified
+name,email,phone,address,city,passport_id,specialization,verified
 John Doe,johndoe@example.com,(123) 555-1234,123 Main St, Cityville,1331223 12312312,math,true
 Jane Smith,janesmith@example.com,(456) 555-5678,456 Elm St, Townville,2334354 23456789,informatics,true
 Robert Johnson,robertjohnson@example.com,(789) 555-9012,789 Oak St, Villageton,1345345 45678901,chemistry,true

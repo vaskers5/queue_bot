@@ -1,4 +1,4 @@
-name,email,phone,address
+name,email,phone,address,city
 John Doe,johndoe@example.com,(123) 555-1234,123 Main St, Cityville
 Jane Smith,janesmith@example.com,(456) 555-5678,456 Elm St, Townville
 Robert Johnson,robertjohnson@example.com,(789) 555-9012,789 Oak St, Villageton

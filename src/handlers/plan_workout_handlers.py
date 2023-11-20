@@ -5,6 +5,7 @@ from src.bot_singleton import BotSingleton
 from src.options import generate_calendar_for_two_weeks, validate_time, check_current_user_state, parse_date
 from src.markups import generate_markup_from_list, get_day_hours_markup, get_start_markup
 
+
 @BotSingleton.bot.message_handler(func=lambda message: message.text == "Запланировать тренировку")
 def handle_workout_date(message):
     str_dates, dates = generate_calendar_for_two_weeks()
@@ -50,7 +51,7 @@ def handle_workout_time(message):
     else:
         place_id, place_name = last_state["state_info"]["places"][message.text], message.text
         BotSingleton.manager.change_current_user_state(user_id, "selected_place", state_info={"date": workout_date, "place": {"place_id": place_id, "place_name": place_name}})
-        text = f"Вы выбрали день {message.text}. Теперь введите время начала и конца тренировки (например, 09:00-10:00). Вы можете использовать заготовленные нами варианты, или задать сами введя текст:",
+        text = "Вы выбрали день. Теперь введите время начала и конца тренировки (например, 09:00-10:00). Вы можете использовать заготовленные нами варианты, или задать сами введя текст:"
         BotSingleton.bot.send_message(user_id, text, reply_markup=get_day_hours_markup())
 
 
@@ -64,7 +65,7 @@ def handle_entered_time(message):
     else:
         start_time, end_time = message.text.split("-")
         last_state = BotSingleton.manager.get_current_user_state(user_id)
-        date = datetime.strptime(last_state["state_info"]["date"], '%Y-%m-%d %H:%M:%S')
+        date = datetime.strptime(last_state["state_info"]["date"], '%Y-%m-%d %H:%M:%S.%f')
         workout_start_time = str(datetime.combine(date, datetime.strptime(start_time, '%H:%M').time()))
         workout_end_time = str(datetime.combine(date, datetime.strptime(end_time, '%H:%M').time()))
         BotSingleton.manager.change_current_user_state(user_id, "entered_time", 
