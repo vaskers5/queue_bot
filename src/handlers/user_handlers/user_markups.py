@@ -14,6 +14,6 @@ def get_training_options_markup():
 
 def get_trainers_options_markup():
     options = ["Привязаться к тренеру",
-               "Удалить запись к тренеру", 
+               "Удалить привязку к тренеру", 
                ]
     return generate_markup_from_list(options)
