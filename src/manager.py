@@ -11,6 +11,7 @@ class BotManager:
         self.local_db = TinyDB('local_db.json')
         self.trainers_table = self.local_db.table('trainers')
         self.users_table = self.local_db.table('users')
+        self.user_trainer_table = self.local_db.table('user_trainer')
         self.trainer_places_table = self.local_db.table('trainer_places')
         self.user_states_table = self.local_db.table('user_states')
         self.slots_table = self.local_db.table('slots')
@@ -41,6 +42,43 @@ class BotManager:
     def add_user_place(self, user_id: int, place_name: str) -> Place:
         last_id = self.trainer_places_table._next_id
         self.trainer_places_table.insert({"place_id":last_id, "user_id": user_id, "place_name":place_name})
+        
+    def get_user_trainer(self, user_nick: str) -> list[str]:
+        user_trainers = self.user_trainer_table.search(Query().user_id == user_nick)
+        trainers = [trainer["trainer_nick"] for trainer in user_trainers]
+        return trainers
+    
+    def add_user_trainer(self, user_nick: str, trainer_nick: str) -> str:
+        trainer_id = self.trainers_table.get(Query().tg_id == trainer_nick)
+        if not trainer_id:
+            return "Такого тренера нет в базе данных!"
+        else:
+            # check if user already has the same trainer. User can have more then one trainer
+            user_trainers = self.user_trainer_table.search(Query().user_id == user_nick)
+            if trainer_id in user_trainers:
+                return "Вы уже привязаны к этому тренеру!"
+            else:
+                self.user_trainer_table.insert({"user_nick": user_nick, "trainer_nick": trainer_nick})
+                return "Тренер успешно добавлен!"
+    
+    def delete_user_trainer(self, user_nick: str, trainer_nick: str) -> str:
+        trainer_id = self.trainers_table.get(Query().tg_id == trainer_nick)
+        if not trainer_id:
+            return "Такого тренера нет в базе данных!"
+        else:
+            # check if user already has the same trainer. User can have more then one trainer
+            user_trainers = self.user_trainer_table.search(Query().user_id == user_nick)
+            if trainer_id in user_trainers:
+                self.user_trainer_table.remove(Query().user_id == user_nick and Query().trainer_id == trainer_nick)
+                return "Тренер успешно удален!"
+            else:
+                return "Вы не записаны к этому тренеру"
+    
+        
+    def add_new_user(self, user_id: int, user_tg_nick: str) -> User:
+        user = User(user_id, user_tg_nick)
+        self.users_table.insert({"user_id": user_id, "tg_nick": user_tg_nick})
+        return user
         
     def delete_user_place(self, user_id: int, place_id: int) -> None:
         self.trainer_places_table.remove(Query().user_id == user_id and Query().id == place_id)

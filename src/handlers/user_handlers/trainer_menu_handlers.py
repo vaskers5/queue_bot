@@ -14,44 +14,31 @@ def handle_add_user_trainer(message):
 
 
 @BotSingleton.bot.message_handler(func=lambda message: message.text == "Удалить привязку к тренеру")
-def handle_delete_place(message):
+def handle_delete_user_trainer_connection(message):
     user_id = message.chat.id
-    all_user_places = BotSingleton.manager.get_user_places(user_id)
-    places_data = {place.name: place.place_id for place in all_user_places}
-    if places_data:
-        BotSingleton.manager.change_current_user_state(user_id, "delete_place", state_info=places_data)
-        markup = generate_markup_from_list([place.name for place in all_user_places])
-        BotSingleton.bot.send_message(user_id, "Выберите место, которое хотите удалить", reply_markup=markup)
-    else:
-        BotSingleton.bot.send_message(user_id, "У вас нет мест для тренировок. Добавьте их в настройках.", reply_markup=get_start_markup())
+    # get user telegram nick
+    user_tg_nick  = message.from_user.username
+    BotSingleton.manager.change_current_user_state(user_id, "delete_user_trainer")
+    text = "Выберите тренера, которого хотите удалить:"
+    trainers = BotSingleton.manager.get_user_trainer(user_tg_nick)
+    BotSingleton.bot.send_message(user_id, text, reply_markup=generate_markup_from_list(trainers))
 
 
-@BotSingleton.bot.message_handler(func=lambda message: message.text == "Мои места")
-def handle_get_all_user_places(message):
+@BotSingleton.bot.message_handler(func=lambda message: all([check_current_user_state(message.chat.id, "add_trainer"), message.text != "Назад"])) 
+def handle_add_trainer_tg_nick(message):
     user_id = message.chat.id
-    all_user_places = BotSingleton.manager.get_user_places(user_id)
-    if all_user_places:
-        msg = "Ваши места:\n"
-        msg += "\n".join([place.name for place in all_user_places])
-        BotSingleton.bot.send_message(user_id, msg)
-    else:
-        BotSingleton.bot.send_message(user_id, "У вас нет мест для тренировок. Добавьте их в настройках.", reply_markup=get_start_markup())
-
-
-@BotSingleton.bot.message_handler(func=lambda message: all([check_current_user_state(message.chat.id, "add_place"), message.text != "Назад"])) 
-def handle_write_new_place_name(message):
-    user_id = message.chat.id
-    BotSingleton.manager.add_user_place(user_id, message.text)
+    # get user telegram nick
+    user_tg_nick  = message.from_user.username
+    result_text = BotSingleton.manager.add_user_trainer(user_tg_nick, message.text)
     BotSingleton.manager.change_current_user_state(user_id, "start")
-    text = f"Место {message.text} успешно добавлено"
-    BotSingleton.bot.send_message(user_id, text, reply_markup=get_start_markup())
+    BotSingleton.bot.send_message(user_id, result_text, reply_markup=get_start_markup())
 
 
-@BotSingleton.bot.message_handler(func=lambda message: all([check_current_user_state(message.chat.id, "delete_place"), message.text != "Назад"])) 
-def handle_write_deleted_place_name(message):
+@BotSingleton.bot.message_handler(func=lambda message: all([check_current_user_state(message.chat.id, "delete_user_trainer"), message.text != "Назад"])) 
+def handle_delete_trainer_nick(message):
     user_id = message.chat.id
-    last_state = BotSingleton.manager.get_current_user_state(user_id)
-    place_id = last_state["state_info"][message.text]
-    last_state = BotSingleton.manager.delete_user_place(user_id, place_id)
+    # get user telegram nick
+    user_tg_nick  = message.from_user.username
+    result_text = BotSingleton.manager.delete_user_trainer(user_tg_nick, message.text)
     BotSingleton.manager.change_current_user_state(user_id, "start")
-    BotSingleton.bot.send_message(user_id, f"Место {message.text} успешно удалено", reply_markup=get_start_markup())
+    BotSingleton.bot.send_message(user_id, result_text, reply_markup=get_start_markup())
