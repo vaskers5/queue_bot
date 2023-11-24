@@ -39,8 +39,10 @@ class BotManager:
         places = [Place(place["place_id"], place["place_name"]) for place in user_places]
         return places
     
-    def add_user_place(self, user_id: int, place_name: str) -> Place:
+    def add_user_place(self, user_id: int, place_name: str) -> None:
         last_id = self.trainer_places_table._next_id
+        if last_id is None:
+            last_id = 1
         self.trainer_places_table.insert({"place_id":last_id, "user_id": user_id, "place_name":place_name})
         
     def get_user_trainer(self, user_nick: str) -> list[str]:

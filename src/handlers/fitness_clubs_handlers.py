@@ -51,7 +51,11 @@ def handle_write_new_place_name(message):
 def handle_write_deleted_place_name(message):
     user_id = message.chat.id
     last_state = BotSingleton.manager.get_current_user_state(user_id)
-    place_id = last_state["state_info"][message.text]
-    last_state = BotSingleton.manager.delete_user_place(user_id, place_id)
-    BotSingleton.manager.change_current_user_state(user_id, "start")
-    BotSingleton.bot.send_message(user_id, f"Место {message.text} успешно удалено", reply_markup=get_start_markup())
+    places_dict = last_state["state_info"]
+    if not (message.text in places_dict):
+        BotSingleton.bot.send_message(user_id, "Вы здесь не занимаетесь!", reply_markup=get_start_markup())
+    else:
+        place_id = places_dict[message.text]
+        last_state = BotSingleton.manager.delete_user_place(user_id, place_id)
+        BotSingleton.manager.change_current_user_state(user_id, "start")
+        BotSingleton.bot.send_message(user_id, f"Место {message.text} успешно удалено", reply_markup=get_start_markup())
