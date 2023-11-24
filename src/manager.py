@@ -83,7 +83,7 @@ class BotManager:
         return user
         
     def delete_user_place(self, user_id: int, place_id: int) -> None:
-        self.trainer_places_table.remove(Query().user_id == user_id and Query().id == place_id)
+        self.trainer_places_table.remove(Query().user_id == user_id and Query().place_id == place_id)
     
     def change_current_user_state(self, chat_id: int, state: str, state_info: dict =None):
         # must change last user state
