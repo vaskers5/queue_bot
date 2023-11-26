@@ -24,6 +24,11 @@ def handle_user_choose_trainer(message):
         BotSingleton.bot.send_message(user_id, "Вы не записаны к этому тренеру!")
     else:
         trainer_slots = BotSingleton.manager.get_trainer_slots(message.text)
+        if len(trainer_slots) == 0:
+            BotSingleton.bot.send_message(user_id, "У тренера нет свободных слотов!")
+        else:
+            BotSingleton.manager.change_current_user_state(user_id, "selected_trainer", state_info={"trainer": message.text})
+            BotSingleton.bot.send_message(user_id, "Выберите свободный слот:", reply_markup=generate_markup_from_list([str(slot) for slot in trainer_slots]))
     
 
 
