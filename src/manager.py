@@ -103,7 +103,7 @@ class BotManager:
         trainer_id = self.trainers_table.get(Query().tg_id == trainer_nick)
         if trainer_id:
             slots = self.slots_table.search(Query().trainer_id == trainer_id)
-            slots = list(filter(lambda item: ))
+            slots = list(filter(lambda slot: slot["slot_type"] == "free", slots))
             return [Slot(**slot) for slot in slots]
         else:
             return []
