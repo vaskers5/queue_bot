@@ -1,5 +1,7 @@
 from tinydb import TinyDB, Query
 
+from typing import Optional
+
 from .entities.trainer import Trainer
 from .entities.place import Place
 from .entities.user import User
@@ -22,10 +24,13 @@ class BotManager:
         self.local_db.insert(id=trainer_id, tg_id=trainer_tg_nick)
         return trainer
     
-    def add_new_slot(self, user_id: int, start_time: str, end_time: str, place_id: int, place_name: str) -> Slot:
+    def add_new_slot(self, user_id: int, start_time: str, end_time: str,
+                     place_id: int, place_name: str,
+                     slot_type: str="free", user_nickname: Optional[str]=None) -> Slot:
         last_id = self.slots_table._next_id
         slot_data = {"id": last_id, "user_id": user_id, "start_time": start_time,
-                     "end_time": end_time, "place_id": place_id, "place_name": place_name}
+                     "end_time": end_time, "place_id": place_id, "place_name": place_name,
+                     "slot_type": slot_type, "user_nickname": user_nickname}
         slot = Slot(**slot_data)
         self.slots_table.insert(slot_data)
         return slot
@@ -93,3 +98,29 @@ class BotManager:
     def get_current_user_state(self, chat_id: int) -> dict[str, object]:
         user_state = self.user_states_table.get(Query().chat_id == chat_id)
         return user_state
+    
+    def get_trainer_slots(self, trainer_nick: str) -> list[Slot]:
+        trainer_id = self.trainers_table.get(Query().tg_id == trainer_nick)
+        if trainer_id:
+            slots = self.slots_table.search(Query().trainer_id == trainer_id)
+            slots = list(filter(lambda item: ))
+            return [Slot(**slot) for slot in slots]
+        else:
+            return []
+
+    def get_trainer_clients(self, trainer_nick: str) -> list[str]:
+        trainer_id = self.trainers_table.get(Query().tg_id == trainer_nick)
+        if trainer_id:
+            user_trainers = self.user_trainer_table.search(Query().trainer_id == trainer_id)
+            user_ids = [user["user_id"] for user in user_trainers]
+            users = self.users_table.search(Query().user_id in user_ids)
+            return [user["tg_nick"] for user in users]
+        else:
+            return []
+
+    def check_trainer(self, trainer_nick: str, user_nick: str) -> bool:
+        user_trainer = self.user_trainer_table.get(Query().user_nick == user_nick and Query().trainer_nick == trainer_nick)
+        if user_trainer:
+            return True
+        else:
+            return False

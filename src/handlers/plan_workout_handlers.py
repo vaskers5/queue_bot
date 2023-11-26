@@ -1,4 +1,5 @@
 from datetime import datetime
+from entities import slot
 
 from src.bot_singleton import BotSingleton
 
@@ -81,18 +82,44 @@ def handle_confirm_slot(message):
     user_id = message.chat.id
     slot_confirmation = message.text
     last_state = BotSingleton.manager.get_current_user_state(user_id)
-    if slot_confirmation == "Свободный слот":
-        BotSingleton.manager.add_new_slot(user_id, **last_state["state_info"])
-    elif slot_confirmation == "Занятый слот":
-        BotSingleton.manager.add_new_slot(user_id, **last_state["state_info"])
-    elif slot_confirmation == "Постоянный слот":
-        BotSingleton.manager.add_new_slot(user_id, **last_state["state_info"])
+    if slot_confirmation in ["Занятый слот", "Постоянный слот"]:
+        trainer_clients = BotSingleton.manager.get_trainer_clients(message.from_user.username)
+        if len(trainer_clients) == 0:
+            text = "У вас нет клиентов, чтоб мы могли записать их на этот слот."
+            BotSingleton.bot.send_message(user_id, text)
+        else:
+            clients_data = {client_nick: i for i, client_nick in enumerate(trainer_clients)}
+            last_state["state_info"]["slot_type"] = slot_confirmation
+            BotSingleton.manager.change_current_user_state(user_id, "enter_client", state_info={"clients": clients_data,
+                                                                                                **last_state["state_info"]})
+            text = "Выберите клиента, которого хотите записать на этот слот:"
+            text += "\n".join([f"{i+1}. {client}" for i, client in enumerate(trainer_clients)])
+            BotSingleton.bot.send_message(user_id, "Выберите клиента:", reply_markup=generate_markup_from_list(list(range(1, len(trainer_clients)+1))))
     else:
-        # BotSingleton.manager.change_current_user_state(user_id, "selected_place")
-        text_msg = "Вы задали неправильный тип слота, выберите один из предложенных нами:"
+        if slot_confirmation == "Свободный слот":
+            BotSingleton.manager.add_new_slot(user_id, **last_state["state_info"], slot_type="free")
+            BotSingleton.bot.send_message(user_id, "Слот успешно добавлен!")
+            BotSingleton.manager.change_current_user_state(user_id, "start")
+            BotSingleton.bot.send_message(user_id, "Выберите опцию:", reply_markup=get_start_markup())
+        else:
+            # BotSingleton.manager.change_current_user_state(user_id, "selected_place")
+            text_msg = "Вы задали неправильный тип слота, выберите один из предложенных нами:"
+            BotSingleton.bot.send_message(user_id, text_msg)
+
+
+@BotSingleton.bot.message_handler(func=lambda message: all([check_current_user_state(message.chat.id, "entered_time"), message.text != "Назад"]))
+def handle_choose_clinet(message):
+    user_id = message.chat.id
+    last_state = BotSingleton.manager.get_current_user_state(user_id)
+    if not(message.text in last_state["state_info"]["clients"]):
+        # BotSingleton.manager.change_current_user_state(user_id, "enter_client")
+        text_msg = "Выберите клиента из предложенных нами. Если вашего клиента нет в списке - добавьте его на начальном экране"
         BotSingleton.bot.send_message(user_id, text_msg)
-        return None
-    BotSingleton.bot.send_message(user_id, "Слот успешно добавлен!")
-    BotSingleton.manager.change_current_user_state(user_id, "start")
-    BotSingleton.bot.send_message(user_id, "Выберите опцию:", reply_markup=get_start_markup())
+    else:
+        client_nick = list(last_state["state_info"]["clients"].keys())[int(message.text)-1]
+        slot_type = last_state["state_info"]["slot_type"]
+        BotSingleton.manager.add_new_slot(user_id, **last_state["state_info"], slot_type=slot_type, user_nickname=client_nick)
+        BotSingleton.bot.send_message(user_id, "Слот успешно добавлен!")
+        BotSingleton.manager.change_current_user_state(user_id, "start")
+        BotSingleton.bot.send_message(user_id, "Выберите опцию:", reply_markup=get_start_markup())
 
