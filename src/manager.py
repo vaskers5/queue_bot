@@ -25,12 +25,13 @@ class BotManager:
         return trainer
     
     def add_new_slot(self, user_id: int, start_time: str, end_time: str,
-                     place_id: int, place_name: str,
+                     place_id: int, place_name: str, trainer_nickname: str,
                      slot_type: str="free", user_nickname: Optional[str]=None) -> Slot:
         last_id = self.slots_table._next_id
         slot_data = {"id": last_id, "user_id": user_nickname, "start_time": start_time,
                      "end_time": end_time, "place_id": place_id, "place_name": place_name,
                      "slot_type": slot_type, "user_nickname": user_nickname,
+                     "trainer_nickname": trainer_nickname,
                      "trainer_id": user_id, "slot_type": slot_type} 
         slot = Slot(**slot_data)
         self.slots_table.insert(slot_data)
@@ -169,3 +170,9 @@ class BotManager:
 
         # Update the slot's status
         self.slots_table.update({"slot_type": "free"}, Query().id == slot_id)
+
+    def find_trainer_nick_for_user(self, user_nick: str) -> Optional[str]:
+        trainer_entry = self.user_trainer_table.get(Query().user_nick == user_nick)
+        if trainer_entry:
+            return trainer_entry.get('trainer_nick')
+        return None

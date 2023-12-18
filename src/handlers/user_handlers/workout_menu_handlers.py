@@ -83,9 +83,7 @@ def show_and_handle_user_booked_slots(message):
             
         # Send notification to trainer
         slot_data = slots_data[slot_id]
-        trainer_id = slot_data["trainer_id"]
-        trainer_tg = self.trainers_table.get(Query().id == trainer_id)["tg_id"]
-        BotSingleton.bot.send_message(chat_id=trainer_tg, text=f"User {user_id} has canceled the booking for {slot['start_time']}-{slot['end_time']} at {slot['place_name']}")
+        BotSingleton.bot.send_message(chat_id=slot_data["trainer_nickname"], text=f"User {user_id} has canceled the booking for {slot_data['start_time']}-{slot_data['end_time']} at {slot_data['place_name']}")
 
 
 def cancel_booking(user_id, slot_id):

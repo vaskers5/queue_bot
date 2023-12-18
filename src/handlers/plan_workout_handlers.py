@@ -118,7 +118,8 @@ def handle_choose_clinet(message):
     else:
         client_nick = list(last_state["state_info"]["clients"].keys())[int(message.text)-1]
         slot_type = last_state["state_info"]["slot_type"]
-        BotSingleton.manager.add_new_slot(user_id, **last_state["state_info"], slot_type=slot_type, user_nickname=client_nick)
+        user_tg_nick  = message.from_user.username
+        BotSingleton.manager.add_new_slot(user_id, **last_state["state_info"], slot_type=slot_type, user_nickname=client_nick, trainer_nickname=user_tg_nick)
         BotSingleton.bot.send_message(user_id, "Слот успешно добавлен!")
         BotSingleton.manager.change_current_user_state(user_id, "start")
         BotSingleton.bot.send_message(user_id, "Выберите опцию:", reply_markup=get_start_markup())
