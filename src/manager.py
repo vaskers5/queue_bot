@@ -28,9 +28,10 @@ class BotManager:
                      place_id: int, place_name: str,
                      slot_type: str="free", user_nickname: Optional[str]=None) -> Slot:
         last_id = self.slots_table._next_id
-        slot_data = {"id": last_id, "user_id": user_id, "start_time": start_time,
+        slot_data = {"id": last_id, "user_id": user_nickname, "start_time": start_time,
                      "end_time": end_time, "place_id": place_id, "place_name": place_name,
-                     "slot_type": slot_type, "user_nickname": user_nickname}
+                     "slot_type": slot_type, "user_nickname": user_nickname,
+                     "trainer_id": user_id, "slot_type": slot_type} 
         slot = Slot(**slot_data)
         self.slots_table.insert(slot_data)
         return slot
@@ -124,3 +125,47 @@ class BotManager:
             return True
         else:
             return False
+    
+    def add_user_to_slot(self, user_tg: str, slot: dict[str, str]) -> None:
+    # Check if the user has a trainer
+        user_trainer = self.user_trainer_table.get(Query().user_nick == user_tg)
+        if not user_trainer:
+            raise ValueError("User has no trainer yet.")
+
+        # Check if the slot is free
+        if slot["slot_type"] != "free":
+            raise ValueError("The slot is not free.")
+
+        # Check if the slot is currently occupied
+        if self.slots_table.get(Query().id == slot["id"]):
+            raise ValueError("The slot is currently occupied.")
+
+        # Update the slot's status
+        self.slots_table.update({"slot_type": "reserved"}, Query().id == slot["id"])
+
+        # Add the user to the slot
+        self.slots_table.update({"user_nickname": user_tg}, Query().id == slot["id"])
+
+
+    def get_user_booked_slots(self, user_tg: str) -> list[Slot]:
+        # Get the user's id
+        user_id = self.users_table.get(Query().tg_nick == user_tg)["user_id"]
+
+        # Get the user's booked slots
+        slots = self.slots_table.search(Query().user_id == user_id and Query().slot_type == "reserved")
+
+        # Return a list of Slot objects
+        return [Slot(**slot) for slot in slots]
+
+    def cancel_booking(self, user_id, slot_id):
+        # Check if the slot exists
+        slot = self.slots_table.get(Query().id == slot_id)
+        if not slot:
+            raise ValueError("The slot does not exist.")
+
+        # Check if the slot is reserved by the user
+        if slot["user_id"] != user_id:
+            raise ValueError("The slot is not reserved by the user.")
+
+        # Update the slot's status
+        self.slots_table.update({"slot_type": "free"}, Query().id == slot_id)
