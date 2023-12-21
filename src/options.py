@@ -1,17 +1,17 @@
 from datetime import datetime, timedelta
 
-from src.bot_singleton import BotSingleton
+from src.bot_singleton import TrainerSingleton
 from src.markups import get_start_markup
 
 weeks_days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
 
 
 def check_current_user_state(chat_id: str, state: str) -> bool:
-    cur_state = BotSingleton.manager.get_current_user_state(chat_id)
+    cur_state = TrainerSingleton.manager.get_current_user_state(chat_id)
     if cur_state is None:
-        BotSingleton.manager.change_current_user_state(chat_id, "start")
-        cur_state = BotSingleton.manager.get_current_user_state(chat_id)
-        BotSingleton.bot.send_message(chat_id, "Выберите опцию:", reply_markup=get_start_markup())
+        TrainerSingleton.manager.change_current_user_state(chat_id, "start")
+        cur_state = TrainerSingleton.manager.get_current_user_state(chat_id)
+        TrainerSingleton.bot.send_message(chat_id, "Выберите опцию:", reply_markup=get_start_markup())
     return cur_state["state"] == state
 
 def generate_calendar_for_two_weeks()-> tuple[list[str], list[datetime]]:

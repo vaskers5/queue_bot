@@ -2,14 +2,14 @@ from collections import defaultdict
 
 from datetime import datetime
 
-from src.bot_singleton import BotSingleton
+from src.bot_singleton import TrainerSingleton
 from src.markups import get_start_markup
 
 
-@BotSingleton.bot.message_handler(func=lambda message: message.text == "Все мои доступные тренировки")
+@TrainerSingleton.bot.message_handler(func=lambda message: message.text == "Все мои доступные тренировки")
 def handle_all_trains_info(message):
     user_id = message.chat.id
-    user_workouts = BotSingleton.manager.get_user_slots(user_id)
+    user_workouts = TrainerSingleton.manager.get_user_slots(user_id)
     user_workouts_data_by_date = defaultdict(list)
 
     for workout in user_workouts:
@@ -25,6 +25,6 @@ def handle_all_trains_info(message):
             end_time = datetime.strptime(workout.end_time, '%Y-%m-%d %H:%M:%S')
             result_msg += f"{start_time.strftime('%H:%M')}-{end_time.strftime('%H:%M')} {workout.place_name}\n"
         result_msg += "\n"
-    BotSingleton.manager.change_current_user_state(user_id, "start")
-    BotSingleton.bot.send_message(user_id, result_msg)
-    BotSingleton.bot.send_message(user_id, "Выберите опцию:", reply_markup=get_start_markup())
+    TrainerSingleton.manager.change_current_user_state(user_id, "start")
+    TrainerSingleton.bot.send_message(user_id, result_msg)
+    TrainerSingleton.bot.send_message(user_id, "Выберите опцию:", reply_markup=get_start_markup())
