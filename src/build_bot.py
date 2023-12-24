@@ -9,7 +9,7 @@ from src.handlers.fitness_clubs_handlers import handle_add_place, handle_delete_
 # User handlers
 from src.handlers.user_handlers.main_menu_handlers import handle_user_back_option, handle_user_start, handle_user_fitness_club_option, handle_user_training_options, handle_user_wrong_message
 from src.handlers.user_handlers.trainer_menu_handlers import handle_add_trainer_tg_nick, handle_add_user_trainer, handle_delete_trainer_nick, handle_delete_user_trainer_connection
-from src.handlers.user_handlers.workout_menu_handlers import handle_user_choose_trainer, handle_user_take_slot, show_and_handle_user_booked_slots
+from src.handlers.user_handlers.workout_menu_handlers import handle_user_choose_trainer, handle_user_take_slot, handle_user_delete_slot, handle_user_choose_slot
 
 
 def build_trainer_bot():
@@ -57,5 +57,6 @@ def build_user_bot():
     #workout_menu_handlers
     bot.add_message_handler(handle_user_choose_trainer)
     bot.add_message_handler(handle_user_take_slot)
-    bot.add_message_handler(show_and_handle_user_booked_slots)
+    bot.add_message_handler(handle_user_choose_slot)
+    bot.add_message_handler(handle_user_delete_slot)
     return bot

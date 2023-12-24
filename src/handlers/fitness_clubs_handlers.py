@@ -16,7 +16,7 @@ def handle_add_place(message):
 @TrainerSingleton.bot.message_handler(func=lambda message: message.text == "Удалить место")
 def handle_delete_place(message):
     user_id = message.chat.id
-    all_user_places = TrainerSingleton.manager.get_user_places(user_id)
+    all_user_places = TrainerSingleton.manager.get_trainer_places(user_id)
     places_data = {place.name: place.place_id for place in all_user_places}
     if places_data:
         TrainerSingleton.manager.change_current_user_state(user_id, "delete_place", state_info=places_data)
@@ -29,7 +29,7 @@ def handle_delete_place(message):
 @TrainerSingleton.bot.message_handler(func=lambda message: message.text == "Мои места")
 def handle_get_all_user_places(message):
     user_id = message.chat.id
-    all_user_places = TrainerSingleton.manager.get_user_places(user_id)
+    all_user_places = TrainerSingleton.manager.get_trainer_places(user_id)
     if all_user_places:
         msg = "Ваши места:\n"
         msg += "\n".join([place.name for place in all_user_places])
@@ -41,7 +41,7 @@ def handle_get_all_user_places(message):
 @TrainerSingleton.bot.message_handler(func=lambda message: all([check_current_user_state(message.chat.id, "add_place"), message.text != "Назад"])) 
 def handle_write_new_place_name(message):
     user_id = message.chat.id
-    TrainerSingleton.manager.add_user_place(user_id, message.text)
+    TrainerSingleton.manager.add_trainer_place(user_id, message.text)
     TrainerSingleton.manager.change_current_user_state(user_id, "start")
     text = f"Место {message.text} успешно добавлено"
     TrainerSingleton.bot.send_message(user_id, text, reply_markup=get_start_markup())

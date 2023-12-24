@@ -18,7 +18,7 @@ class TrainerSingleton(object):
         return class_.bot
 
 class UserSingleton(object):
-    bot = telebot.TeleBot("1923472646:AAHrWfdgLlRP3FRzRn-xWx09f5WM_mfBXHQ")
+    bot = telebot.TeleBot("6927276313:AAHQaT6ZhDE-bNymrZNjM3ZkBGl1_RigCLA")
     manager = BotManager()
     def __new__(class_, *args, **kwargs):
         if not isinstance(class_.bot, class_):

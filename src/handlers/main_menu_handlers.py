@@ -17,7 +17,13 @@ def handle_wrong_message(message):
 
 @TrainerSingleton.bot.message_handler(commands=['start'])
 def handle_start(message):
+    
     TrainerSingleton.manager.change_current_user_state(message.chat.id, "start")
+    user_tg_nick  = message.from_user.username
+    check_trainer = TrainerSingleton.manager.add_new_trainer(user_tg_nick)
+    if check_trainer:
+        text = f"Мы добавили вас в базу данных. Теперь к вам могут записываться пользователи. Передайте им ваш телеграм-ник '{user_tg_nick}'"
+        TrainerSingleton.bot.send_message(message.chat.id, text, reply_markup=get_start_markup())
     TrainerSingleton.bot.send_message(message.chat.id, "Выберите опцию:", reply_markup=get_start_markup())
 
 
